@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from time import perf_counter
 
+from loguru import logger
 from PIL import UnidentifiedImageError
 from PySide6.QtCore import QModelIndex, QThread, Qt, Signal
 
@@ -141,8 +142,12 @@ class CaptioningThread(QThread):
             self.run_captioning()
         except Exception as exception:
             self.is_error = True
+            logger.exception('Captioning thread crashed')
             # Show the error message in the console text edit.
             raise exception
 
     def write(self, text: str):
         self.text_outputted.emit(text)
+        stripped = text.rstrip()
+        if stripped:
+            logger.opt(depth=1).info('[captioner] {}', stripped)
