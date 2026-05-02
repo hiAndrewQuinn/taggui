@@ -1,13 +1,14 @@
 import random
 import re
-import sys
 from collections import Counter, deque
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from time import perf_counter
 
 import exifread
 import imagesize
+from loguru import logger
 from PySide6.QtCore import (QAbstractListModel, QModelIndex, QSize, Qt, Signal,
                             Slot)
 from PySide6.QtGui import QIcon, QImageReader, QPixmap
@@ -101,65 +102,75 @@ class ImageListModel(QAbstractListModel):
                          int(self.image_list_image_width * height / width))
 
     def load_directory(self, directory_path: Path):
-        self.images.clear()
-        self.undo_stack.clear()
-        self.redo_stack.clear()
+        logger.info('Loading directory: {}', directory_path)
+        load_start = perf_counter()
+        self.beginResetModel()
+        try:
+            self.images.clear()
+            self.undo_stack.clear()
+            self.redo_stack.clear()
+            file_paths = get_file_paths(directory_path)
+            settings = get_settings()
+            image_suffixes_string = settings.value(
+                'image_list_file_formats',
+                defaultValue=DEFAULT_SETTINGS['image_list_file_formats'],
+                type=str)
+            image_suffixes = []
+            for suffix in image_suffixes_string.split(','):
+                suffix = suffix.strip().lower()
+                if not suffix.startswith('.'):
+                    suffix = '.' + suffix
+                image_suffixes.append(suffix)
+            image_paths = {path for path in file_paths
+                           if path.suffix.lower() in image_suffixes}
+            # Comparing paths is slow on some systems, so convert the paths
+            # to strings.
+            text_file_path_strings = {str(path) for path in file_paths
+                                      if path.suffix == '.txt'}
+            for image_path in image_paths:
+                try:
+                    dimensions = imagesize.get(image_path)
+                    # Check the Exif orientation tag and rotate the
+                    # dimensions if necessary.
+                    with open(image_path, 'rb') as image_file:
+                        try:
+                            exif_tags = exifread.process_file(
+                                image_file, details=False,
+                                stop_tag='Image Orientation')
+                            if 'Image Orientation' in exif_tags:
+                                orientations = (exif_tags['Image Orientation']
+                                                .values)
+                                if any(value in orientations
+                                       for value in (5, 6, 7, 8)):
+                                    dimensions = (dimensions[1],
+                                                  dimensions[0])
+                        except Exception as exception:
+                            logger.warning(
+                                'Failed to read Exif tags for {}: {}',
+                                image_path, exception)
+                except (ValueError, OSError) as exception:
+                    logger.warning('Failed to get dimensions for {}: {}',
+                                   image_path, exception)
+                    dimensions = None
+                tags = []
+                text_file_path = image_path.with_suffix('.txt')
+                if str(text_file_path) in text_file_path_strings:
+                    # `errors='replace'` inserts a replacement marker such as
+                    # '?' when there is malformed data.
+                    caption = text_file_path.read_text(encoding='utf-8',
+                                                       errors='replace')
+                    if caption:
+                        tags = caption.split(self.tag_separator)
+                        tags = [tag.strip() for tag in tags]
+                        tags = [tag for tag in tags if tag]
+                image = Image(image_path, dimensions, tags)
+                self.images.append(image)
+            self.images.sort(key=lambda image_: image_.path)
+        finally:
+            self.endResetModel()
         self.update_undo_and_redo_actions_requested.emit()
-        file_paths = get_file_paths(directory_path)
-        settings = get_settings()
-        image_suffixes_string = settings.value(
-            'image_list_file_formats',
-            defaultValue=DEFAULT_SETTINGS['image_list_file_formats'], type=str)
-        image_suffixes = []
-        for suffix in image_suffixes_string.split(','):
-            suffix = suffix.strip().lower()
-            if not suffix.startswith('.'):
-                suffix = '.' + suffix
-            image_suffixes.append(suffix)
-        image_paths = {path for path in file_paths
-                       if path.suffix.lower() in image_suffixes}
-        # Comparing paths is slow on some systems, so convert the paths to
-        # strings.
-        text_file_path_strings = {str(path) for path in file_paths
-                                  if path.suffix == '.txt'}
-        for image_path in image_paths:
-            try:
-                dimensions = imagesize.get(image_path)
-                # Check the Exif orientation tag and rotate the dimensions if
-                # necessary.
-                with open(image_path, 'rb') as image_file:
-                    try:
-                        exif_tags = exifread.process_file(
-                            image_file, details=False,
-                            stop_tag='Image Orientation')
-                        if 'Image Orientation' in exif_tags:
-                            orientations = (exif_tags['Image Orientation']
-                                            .values)
-                            if any(value in orientations
-                                   for value in (5, 6, 7, 8)):
-                                dimensions = (dimensions[1], dimensions[0])
-                    except Exception as exception:
-                        print(f'Failed to get Exif tags for {image_path}: '
-                              f'{exception}', file=sys.stderr)
-            except (ValueError, OSError) as exception:
-                print(f'Failed to get dimensions for {image_path}: '
-                      f'{exception}', file=sys.stderr)
-                dimensions = None
-            tags = []
-            text_file_path = image_path.with_suffix('.txt')
-            if str(text_file_path) in text_file_path_strings:
-                # `errors='replace'` inserts a replacement marker such as '?'
-                # when there is malformed data.
-                caption = text_file_path.read_text(encoding='utf-8',
-                                                   errors='replace')
-                if caption:
-                    tags = caption.split(self.tag_separator)
-                    tags = [tag.strip() for tag in tags]
-                    tags = [tag for tag in tags if tag]
-            image = Image(image_path, dimensions, tags)
-            self.images.append(image)
-        self.images.sort(key=lambda image_: image_.path)
-        self.modelReset.emit()
+        logger.info('Loaded {} images in {:.2f}s',
+                    len(self.images), perf_counter() - load_start)
 
     def add_to_undo_stack(self, action_name: str,
                           should_ask_for_confirmation: bool):
@@ -176,6 +187,7 @@ class ImageListModel(QAbstractListModel):
                 self.tag_separator.join(image.tags), encoding='utf-8',
                 errors='replace')
         except OSError:
+            logger.exception('Failed to save tags for {}', image.path)
             error_message_box = QMessageBox()
             error_message_box.setWindowTitle('Error')
             error_message_box.setIcon(QMessageBox.Icon.Critical)

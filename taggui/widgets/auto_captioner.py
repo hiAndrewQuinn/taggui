@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 
+from loguru import logger
 from PySide6.QtCore import QModelIndex, Qt, Signal, Slot
 from PySide6.QtGui import QFontMetrics, QTextCursor
 from PySide6.QtWidgets import (QAbstractScrollArea, QDockWidget, QFormLayout,
@@ -247,8 +248,8 @@ class CaptionSettingsForm(QVBoxLayout):
         if not models_directory_path:
             return []
         models_directory_path = Path(models_directory_path)
-        print(f'Loading local auto-captioning model paths under '
-              f'{models_directory_path}...')
+        logger.debug('Loading local auto-captioning model paths under {}',
+                     models_directory_path)
         # Auto-captioning models have a `config.json` file.
         config_paths = set(models_directory_path.glob('**/config.json'))
         # WD Tagger models have a `selected_tags.csv` file.
@@ -257,8 +258,8 @@ class CaptionSettingsForm(QVBoxLayout):
         model_directory_paths = [str(path.parent) for path
                                  in config_paths | selected_tags_paths]
         model_directory_paths.sort()
-        print(f'Loaded {len(model_directory_paths)} model '
-              f'{pluralize("path", len(model_directory_paths))}.')
+        logger.debug('Loaded {} model {}', len(model_directory_paths),
+                     pluralize('path', len(model_directory_paths)))
         return model_directory_paths
 
     @Slot(str)

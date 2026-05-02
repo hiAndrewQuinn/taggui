@@ -36,6 +36,7 @@ dependencies = [
     "timm==1.0.20",
     # WD Tagger
     "huggingface-hub==0.35.3",
+    "loguru==0.7.3",
     "onnxruntime==1.23.1",
     # PyTorch (Linux/macOS use the standard wheel; Windows users should
     # install the CUDA wheel manually – see README).

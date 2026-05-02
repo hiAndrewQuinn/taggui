@@ -1,5 +1,7 @@
 from pathlib import Path
+from time import perf_counter
 
+from loguru import logger
 from PySide6.QtCore import QKeyCombination, QModelIndex, QUrl, Qt, Slot
 from PySide6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                            QKeySequence, QPixmap, QShortcut)
@@ -46,14 +48,19 @@ class MainWindow(QMainWindow):
         tag_separator = get_tag_separator()
         self.image_list_model = ImageListModel(image_list_image_width,
                                                tag_separator)
+        logger.info('Loading CLIP tokenizer…')
+        tokenizer_start = perf_counter()
         tokenizer = AutoTokenizer.from_pretrained(
             get_resource_path(TOKENIZER_DIRECTORY_PATH))
+        logger.info('CLIP tokenizer loaded in {:.2f}s',
+                    perf_counter() - tokenizer_start)
         self.proxy_image_list_model = ProxyImageListModel(
             self.image_list_model, tokenizer, tag_separator)
         self.image_list_model.proxy_image_list_model = (
             self.proxy_image_list_model)
         self.tag_counter_model = TagCounterModel()
         self.image_tag_list_model = ImageTagListModel()
+        logger.debug('Models constructed')
 
         self.setWindowIcon(QIcon(QPixmap(get_resource_path(ICON_PATH))))
         # Not setting this results in some ugly colors.
@@ -84,6 +91,7 @@ class MainWindow(QMainWindow):
                            self.auto_captioner)
         self.tabifyDockWidget(self.all_tags_editor, self.auto_captioner)
         self.all_tags_editor.raise_()
+        logger.debug('Widgets constructed')
         # Set default widths for the dock widgets.
         # Temporarily set a size for the window so that the dock widgets can be
         # expanded to their default widths. If the window geometry was
@@ -182,6 +190,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event: QCloseEvent):
         """Save the window geometry and state before closing."""
+        logger.debug('Saving window geometry and state to settings')
         self.settings.setValue('geometry', self.saveGeometry())
         self.settings.setValue('window_state', self.saveState())
         super().closeEvent(event)
@@ -572,4 +581,5 @@ class MainWindow(QMainWindow):
             directory_path = Path(self.settings.value('directory_path',
                                                       type=str))
             if directory_path.is_dir():
+                logger.info('Restoring last directory: {}', directory_path)
                 self.load_directory(directory_path, select_index=image_index)
