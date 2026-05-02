@@ -28,7 +28,7 @@ from taggui.widgets.image_tags_editor import ImageTagsEditor
 from taggui.widgets.image_viewer import ImageViewer
 
 ICON_PATH = Path('images/icon.ico')
-GITHUB_REPOSITORY_URL = 'https://github.com/jhc13/taggui'
+GITHUB_REPOSITORY_URL = 'https://github.com/hiAndrewQuinn/taggui'
 TOKENIZER_DIRECTORY_PATH = Path('clip-vit-base-patch32')
 
 

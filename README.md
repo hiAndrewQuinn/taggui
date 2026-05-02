@@ -20,7 +20,7 @@ models.
 ## Installation
 
 The easiest way to use the application is to download the latest release from
-the [releases page](https://www.github.com/jhc13/taggui/releases).
+the [releases page](https://www.github.com/hiAndrewQuinn/taggui/releases).
 Choose the appropriate file for your operating system, extract it wherever you
 want, and run the executable file inside.
 You may have to install [7-Zip](https://www.7-zip.org/download.html) to
@@ -41,7 +41,7 @@ If you have [uv](https://docs.astral.sh/uv/) installed, the easiest way to
 install TagGUI from source is:
 
 ```sh
-uv tool install git+https://github.com/jhc13/taggui.git
+uv tool install git+https://github.com/hiAndrewQuinn/taggui.git
 ```
 
 This installs a `taggui` command on your `PATH` that you can run from anywhere.

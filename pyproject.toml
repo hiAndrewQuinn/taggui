@@ -9,7 +9,7 @@ description = "Cross-platform desktop application for quickly adding and editing
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11,<3.13"
-authors = [{ name = "jhc13" }]
+authors = [{ name = "hiAndrewQuinn" }]
 keywords = ["image-tagging", "captioning", "dataset", "generative-ai", "stable-diffusion"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -54,9 +54,9 @@ flash-attn = ["flash-attn==2.8.3"]
 taggui = "taggui.run_gui:main"
 
 [project.urls]
-Homepage = "https://github.com/jhc13/taggui"
-Repository = "https://github.com/jhc13/taggui"
-Issues = "https://github.com/jhc13/taggui/issues"
+Homepage = "https://github.com/hiAndrewQuinn/taggui"
+Repository = "https://github.com/hiAndrewQuinn/taggui"
+Issues = "https://github.com/hiAndrewQuinn/taggui/issues"
 
 [tool.setuptools.packages.find]
 include = ["taggui*"]
