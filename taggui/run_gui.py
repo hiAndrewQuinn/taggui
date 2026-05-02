@@ -63,6 +63,7 @@ def run_gui():
 
 
 def main():
+    logger.debug('Entering main() now')
     # Prevent PyTorch from opening multiple windows when running inside a
     # PyInstaller bundle.
     if len(sys.argv) > 1 and 'compile_worker' in sys.argv[1]:
@@ -91,4 +92,5 @@ def main():
 
 
 if __name__ == '__main__':
+    logger.debug('Starting up!')
     main()
