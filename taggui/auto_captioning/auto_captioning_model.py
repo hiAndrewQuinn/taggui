@@ -11,9 +11,9 @@ from transformers import (AutoModelForVision2Seq, AutoProcessor,
                           BatchFeature, BitsAndBytesConfig)
 from transformers.utils.import_utils import is_torch_bf16_gpu_available
 
-import auto_captioning.captioning_thread as captioning_thread
-from utils.enums import CaptionDevice
-from utils.image import Image
+import taggui.auto_captioning.captioning_thread as captioning_thread
+from taggui.utils.enums import CaptionDevice
+from taggui.utils.image import Image
 
 
 def replace_template_variable(match: re.Match, image: Image) -> str:

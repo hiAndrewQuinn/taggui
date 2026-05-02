@@ -2,8 +2,8 @@ from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (QDialog, QFileDialog, QGridLayout, QLabel,
                                QLineEdit, QPushButton, QVBoxLayout)
 
-from utils.settings import DEFAULT_SETTINGS, get_settings
-from utils.settings_widgets import (SettingsBigCheckBox, SettingsLineEdit,
+from taggui.utils.settings import DEFAULT_SETTINGS, get_settings
+from taggui.utils.settings_widgets import (SettingsBigCheckBox, SettingsLineEdit,
                                     SettingsSpinBox)
 
 

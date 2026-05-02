@@ -5,12 +5,12 @@ from time import perf_counter
 from PIL import UnidentifiedImageError
 from PySide6.QtCore import QModelIndex, QThread, Qt, Signal
 
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
-from auto_captioning.models_list import get_model_class
-from models.image_list_model import ImageListModel
-from utils.enums import CaptionPosition
-from utils.image import Image
-from utils.settings import get_tag_separator
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.auto_captioning.models_list import get_model_class
+from taggui.models.image_list_model import ImageListModel
+from taggui.utils.enums import CaptionPosition
+from taggui.utils.image import Image
+from taggui.utils.settings import get_tag_separator
 
 
 def add_caption_to_tags(tags: list[str], caption: str,

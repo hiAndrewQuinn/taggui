@@ -1,6 +1,6 @@
 from transformers import AutoConfig, AutoProcessor
 
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
 
 
 class LlavaLlama3(AutoCaptioningModel):

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QCheckBox, QPushButton
 
-from utils.settings import DEFAULT_SETTINGS, get_settings
+from taggui.utils.settings import DEFAULT_SETTINGS, get_settings
 
 
 class BigPushButton(QPushButton):

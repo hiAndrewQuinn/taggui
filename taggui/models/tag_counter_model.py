@@ -3,8 +3,8 @@ from collections import Counter
 from PySide6.QtCore import QAbstractListModel, Qt, Signal, Slot
 from PySide6.QtWidgets import QMessageBox
 
-from utils.image import Image
-from utils.utils import get_confirmation_dialog_reply, list_with_and, pluralize
+from taggui.utils.image import Image
+from taggui.utils.utils import get_confirmation_dialog_reply, list_with_and, pluralize
 
 
 class TagCounterModel(QAbstractListModel):

@@ -3,10 +3,10 @@ import re
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QPushButton, QVBoxLayout
 
-from models.image_list_model import ImageListModel
-from models.tag_counter_model import TagCounterModel
-from utils.settings_widgets import SettingsBigCheckBox, SettingsLineEdit
-from widgets.auto_captioner import HorizontalLine
+from taggui.models.image_list_model import ImageListModel
+from taggui.models.tag_counter_model import TagCounterModel
+from taggui.utils.settings_widgets import SettingsBigCheckBox, SettingsLineEdit
+from taggui.widgets.auto_captioner import HorizontalLine
 
 
 class BatchReorderTagsDialog(QDialog):

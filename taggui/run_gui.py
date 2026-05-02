@@ -8,8 +8,8 @@ import transformers
 from PySide6.QtGui import QImageReader
 from PySide6.QtWidgets import QApplication, QMessageBox
 
-from utils.settings import get_settings
-from widgets.main_window import MainWindow
+from taggui.utils.settings import get_settings
+from taggui.widgets.main_window import MainWindow
 
 
 def suppress_warnings():
@@ -43,7 +43,7 @@ def run_gui():
     sys.exit(app.exec())
 
 
-if __name__ == '__main__':
+def main():
     # Prevent PyTorch from opening multiple windows when running inside a
     # PyInstaller bundle.
     if len(sys.argv) > 1 and 'compile_worker' in sys.argv[1]:
@@ -65,3 +65,7 @@ if __name__ == '__main__':
         error_message_box.setDetailedText(traceback.format_exc())
         error_message_box.exec()
         raise exception
+
+
+if __name__ == '__main__':
+    main()

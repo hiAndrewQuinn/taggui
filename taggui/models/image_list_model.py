@@ -13,9 +13,9 @@ from PySide6.QtCore import (QAbstractListModel, QModelIndex, QSize, Qt, Signal,
 from PySide6.QtGui import QIcon, QImageReader, QPixmap
 from PySide6.QtWidgets import QMessageBox
 
-from utils.image import Image
-from utils.settings import DEFAULT_SETTINGS, get_settings
-from utils.utils import get_confirmation_dialog_reply, pluralize
+from taggui.utils.image import Image
+from taggui.utils.settings import DEFAULT_SETTINGS, get_settings
+from taggui.utils.utils import get_confirmation_dialog_reply, pluralize
 
 UNDO_STACK_SIZE = 32
 

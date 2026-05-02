@@ -8,21 +8,21 @@ from PySide6.QtWidgets import (QAbstractScrollArea, QDockWidget, QFormLayout,
                                QPlainTextEdit, QProgressBar, QScrollArea,
                                QVBoxLayout, QWidget)
 
-from auto_captioning.captioning_thread import CaptioningThread
-from auto_captioning.models.wd_tagger import WdTagger
-from auto_captioning.models_list import MODELS, get_model_class
-from dialogs.caption_multiple_images_dialog import CaptionMultipleImagesDialog
-from models.image_list_model import ImageListModel
-from utils.big_widgets import TallPushButton
-from utils.enums import CaptionDevice, CaptionPosition
-from utils.settings import DEFAULT_SETTINGS, get_settings, get_tag_separator
-from utils.settings_widgets import (FocusedScrollSettingsComboBox,
+from taggui.auto_captioning.captioning_thread import CaptioningThread
+from taggui.auto_captioning.models.wd_tagger import WdTagger
+from taggui.auto_captioning.models_list import MODELS, get_model_class
+from taggui.dialogs.caption_multiple_images_dialog import CaptionMultipleImagesDialog
+from taggui.models.image_list_model import ImageListModel
+from taggui.utils.big_widgets import TallPushButton
+from taggui.utils.enums import CaptionDevice, CaptionPosition
+from taggui.utils.settings import DEFAULT_SETTINGS, get_settings, get_tag_separator
+from taggui.utils.settings_widgets import (FocusedScrollSettingsComboBox,
                                     FocusedScrollSettingsDoubleSpinBox,
                                     FocusedScrollSettingsSpinBox,
                                     SettingsBigCheckBox, SettingsLineEdit,
                                     SettingsPlainTextEdit)
-from utils.utils import pluralize
-from widgets.image_list import ImageList
+from taggui.utils.utils import pluralize
+from taggui.widgets.image_list import ImageList
 
 
 def set_text_edit_height(text_edit: QPlainTextEdit, line_count: int):

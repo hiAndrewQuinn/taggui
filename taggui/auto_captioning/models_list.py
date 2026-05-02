@@ -1,14 +1,14 @@
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
-from auto_captioning.models.florence_2 import Florence2, Florence2Promptgen
-from auto_captioning.models.joycaption import Joycaption
-from auto_captioning.models.kosmos_2 import Kosmos2
-from auto_captioning.models.llava_1_point_5 import Llava1Point5
-from auto_captioning.models.llava_llama_3 import LlavaLlama3
-from auto_captioning.models.llava_next import (LlavaNext34b, LlavaNextMistral,
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.auto_captioning.models.florence_2 import Florence2, Florence2Promptgen
+from taggui.auto_captioning.models.joycaption import Joycaption
+from taggui.auto_captioning.models.kosmos_2 import Kosmos2
+from taggui.auto_captioning.models.llava_1_point_5 import Llava1Point5
+from taggui.auto_captioning.models.llava_llama_3 import LlavaLlama3
+from taggui.auto_captioning.models.llava_next import (LlavaNext34b, LlavaNextMistral,
                                                LlavaNextVicuna)
-from auto_captioning.models.moondream import Moondream1, Moondream2
-from auto_captioning.models.phi_3_vision import Phi3Vision
-from auto_captioning.models.wd_tagger import WdTagger
+from taggui.auto_captioning.models.moondream import Moondream1, Moondream2
+from taggui.auto_captioning.models.phi_3_vision import Phi3Vision
+from taggui.auto_captioning.models.wd_tagger import WdTagger
 
 MODELS = [
     'fancyfeast/llama-joycaption-beta-one-hf-llava',

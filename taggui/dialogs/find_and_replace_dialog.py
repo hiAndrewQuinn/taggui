@@ -4,11 +4,11 @@ from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (QDialog, QGridLayout, QLabel, QPushButton,
                                QVBoxLayout)
 
-from models.image_list_model import ImageListModel, Scope
-from utils.settings import get_settings
-from utils.settings_widgets import (SettingsBigCheckBox, SettingsComboBox,
+from taggui.models.image_list_model import ImageListModel, Scope
+from taggui.utils.settings import get_settings
+from taggui.utils.settings_widgets import (SettingsBigCheckBox, SettingsComboBox,
                                     SettingsLineEdit)
-from utils.utils import pluralize
+from taggui.utils.utils import pluralize
 
 
 class FindAndReplaceDialog(QDialog):

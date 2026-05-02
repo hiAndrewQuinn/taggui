@@ -1,9 +1,9 @@
 import numpy as np
 from transformers import AutoModelForCausalLM, BatchFeature
 
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
-from utils.image import Image
-from utils.utils import list_with_and
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.utils.image import Image
+from taggui.utils.utils import list_with_and
 
 
 class Florence2(AutoCaptioningModel):

@@ -10,9 +10,9 @@ import numpy as np
 from PIL import Image as PilImage
 from onnxruntime import InferenceSession
 
-import auto_captioning.captioning_thread as captioning_thread
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
-from utils.image import Image
+import taggui.auto_captioning.captioning_thread as captioning_thread
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.utils.image import Image
 
 KAOMOJIS = ['0_0', '(o)_(o)', '+_+', '+_-', '._.', '<o>_<o>', '<|>_<|>', '=_=',
             '>_<', '3_3', '6_9', '>_o', '@_@', '^_^', 'o_o', 'u_u', 'x_x',

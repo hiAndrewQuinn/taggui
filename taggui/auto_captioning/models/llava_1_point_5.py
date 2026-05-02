@@ -1,4 +1,4 @@
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
 
 
 class Llava1Point5(AutoCaptioningModel):

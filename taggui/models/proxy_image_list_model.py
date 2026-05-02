@@ -4,8 +4,8 @@ from fnmatch import fnmatchcase
 from PySide6.QtCore import QModelIndex, QSortFilterProxyModel, Qt
 from transformers import PreTrainedTokenizerBase
 
-from models.image_list_model import ImageListModel
-from utils.image import Image
+from taggui.models.image_list_model import ImageListModel
+from taggui.utils.image import Image
 
 
 class ProxyImageListModel(QSortFilterProxyModel):

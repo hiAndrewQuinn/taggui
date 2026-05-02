@@ -16,11 +16,11 @@ from pyparsing import (CaselessKeyword, CaselessLiteral, Group, OpAssoc,
                        ParseException, QuotedString, Suppress, Word,
                        infix_notation, nums, one_of, printables)
 
-from models.proxy_image_list_model import ProxyImageListModel
-from utils.image import Image
-from utils.settings import get_settings
-from utils.settings_widgets import SettingsComboBox
-from utils.utils import get_confirmation_dialog_reply, pluralize
+from taggui.models.proxy_image_list_model import ProxyImageListModel
+from taggui.utils.image import Image
+from taggui.utils.settings import get_settings
+from taggui.utils.settings_widgets import SettingsComboBox
+from taggui.utils.utils import get_confirmation_dialog_reply, pluralize
 
 
 def replace_filter_wildcards(filter_: str | list) -> str | list:

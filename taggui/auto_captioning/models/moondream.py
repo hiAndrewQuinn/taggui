@@ -6,8 +6,8 @@ import torch
 from transformers import (AutoModelForCausalLM, AutoTokenizer,
                           CodeGenTokenizerFast)
 
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
-from utils.image import Image
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.utils.image import Image
 
 MOONDREAM2_REVISION = '2024-08-26'
 

@@ -2,9 +2,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QLineEdit,
                                QPlainTextEdit, QSpinBox)
 
-from utils.big_widgets import BigCheckBox
-from utils.focused_scroll_mixin import FocusedScrollMixin
-from utils.settings import get_settings
+from taggui.utils.big_widgets import BigCheckBox
+from taggui.utils.focused_scroll_mixin import FocusedScrollMixin
+from taggui.utils.settings import get_settings
 
 
 class SettingsBigCheckBox(BigCheckBox):

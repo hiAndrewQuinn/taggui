@@ -8,24 +8,24 @@ from PySide6.QtWidgets import (QApplication, QFileDialog, QMainWindow,
                                QWidget)
 from transformers import AutoTokenizer
 
-from dialogs.batch_reorder_tags_dialog import BatchReorderTagsDialog
-from dialogs.find_and_replace_dialog import FindAndReplaceDialog
-from dialogs.settings_dialog import SettingsDialog
-from models.image_list_model import ImageListModel
-from models.image_tag_list_model import ImageTagListModel
-from models.proxy_image_list_model import ProxyImageListModel
-from models.tag_counter_model import TagCounterModel
-from utils.big_widgets import BigPushButton
-from utils.image import Image
-from utils.key_press_forwarder import KeyPressForwarder
-from utils.settings import DEFAULT_SETTINGS, get_settings, get_tag_separator
-from utils.shortcut_remover import ShortcutRemover
-from utils.utils import get_resource_path, pluralize
-from widgets.all_tags_editor import AllTagsEditor
-from widgets.auto_captioner import AutoCaptioner
-from widgets.image_list import ImageList
-from widgets.image_tags_editor import ImageTagsEditor
-from widgets.image_viewer import ImageViewer
+from taggui.dialogs.batch_reorder_tags_dialog import BatchReorderTagsDialog
+from taggui.dialogs.find_and_replace_dialog import FindAndReplaceDialog
+from taggui.dialogs.settings_dialog import SettingsDialog
+from taggui.models.image_list_model import ImageListModel
+from taggui.models.image_tag_list_model import ImageTagListModel
+from taggui.models.proxy_image_list_model import ProxyImageListModel
+from taggui.models.tag_counter_model import TagCounterModel
+from taggui.utils.big_widgets import BigPushButton
+from taggui.utils.image import Image
+from taggui.utils.key_press_forwarder import KeyPressForwarder
+from taggui.utils.settings import DEFAULT_SETTINGS, get_settings, get_tag_separator
+from taggui.utils.shortcut_remover import ShortcutRemover
+from taggui.utils.utils import get_resource_path, pluralize
+from taggui.widgets.all_tags_editor import AllTagsEditor
+from taggui.widgets.auto_captioner import AutoCaptioner
+from taggui.widgets.image_list import ImageList
+from taggui.widgets.image_tags_editor import ImageTagsEditor
+from taggui.widgets.image_viewer import ImageViewer
 
 ICON_PATH = Path('images/icon.ico')
 GITHUB_REPOSITORY_URL = 'https://github.com/jhc13/taggui'

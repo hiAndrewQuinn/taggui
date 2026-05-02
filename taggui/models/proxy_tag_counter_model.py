@@ -2,8 +2,8 @@ from fnmatch import fnmatchcase
 
 from PySide6.QtCore import QModelIndex, QSortFilterProxyModel
 
-from models.tag_counter_model import TagCounterModel
-from utils.enums import AllTagsSortBy
+from taggui.models.tag_counter_model import TagCounterModel
+from taggui.utils.enums import AllTagsSortBy
 
 
 class ProxyTagCounterModel(QSortFilterProxyModel):

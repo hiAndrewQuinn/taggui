@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-datas = [('clip-vit-base-patch32', 'clip-vit-base-patch32'),
-         ('images/icon.ico', 'images')]
+datas = [('taggui/resources/clip-vit-base-patch32', 'clip-vit-base-patch32'),
+         ('taggui/resources/images/icon.ico', 'images')]
 hiddenimports = [
     'timm.models.layers',
 ]
@@ -42,7 +42,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['images/icon.ico'],
+    icon=['taggui/resources/images/icon.ico'],
     contents_directory='_taggui',
 )
 coll = COLLECT(

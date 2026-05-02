@@ -2,7 +2,7 @@ import bitsandbytes
 import torch
 from transformers import LlavaForConditionalGeneration
 
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
 
 
 class Joycaption(AutoCaptioningModel):

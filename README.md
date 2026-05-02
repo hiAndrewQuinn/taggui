@@ -1,6 +1,6 @@
 # TagGUI
 
-<img src='images/icon.png' alt='TagGUI icon' width='128'>
+<img src='taggui/resources/images/icon.png' alt='TagGUI icon' width='128'>
 
 Cross-platform desktop application for quickly adding and editing image tags
 and captions, aimed towards creators of image datasets for generative AI
@@ -32,10 +32,41 @@ extract the files if you don't have it on your system.
 - Linux users: You may need to install `libxcb-cursor0`.
   (See [this Stack Overflow answer](https://stackoverflow.com/a/75941575).)
 
-Alternatively, you can install manually by cloning this repository and
-installing the dependencies in `requirements.txt`.
-Run `taggui/run_gui.py` to start the program.
-Python 3.12 is recommended, but Python 3.11 should also work.
+Alternatively, you can install from source. Python 3.12 is recommended, but
+Python 3.11 should also work.
+
+### Install with `uv` (recommended)
+
+If you have [uv](https://docs.astral.sh/uv/) installed, the easiest way to
+install TagGUI from source is:
+
+```sh
+uv tool install git+https://github.com/jhc13/taggui.git
+```
+
+This installs a `taggui` command on your `PATH` that you can run from anywhere.
+To upgrade later, run `uv tool upgrade taggui`. To uninstall,
+`uv tool uninstall taggui`.
+
+You can also install a local checkout with `uv tool install .` from the repo
+root.
+
+#### Optional: FlashAttention (Linux, NVIDIA GPU)
+
+FlashAttention accelerates Florence-2 and Phi-3-Vision but has special build
+requirements (it needs `torch` already installed at build time), so it is not
+installed automatically. To add it to an existing tool install:
+
+```sh
+uv tool install --with flash-attn==2.8.3 --reinstall \
+    --no-build-isolation-package flash-attn taggui
+```
+
+### Install with `pip`
+
+You can also install in a virtualenv with `pip` using the
+`requirements.txt` file, then run `python -m taggui.run_gui` (or just
+`taggui` if you also `pip install .`).
 
 ## Usage
 

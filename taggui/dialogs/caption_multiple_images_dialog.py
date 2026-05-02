@@ -1,5 +1,5 @@
-from utils.settings_widgets import SettingsBigCheckBox
-from utils.utils import ConfirmationDialog
+from taggui.utils.settings_widgets import SettingsBigCheckBox
+from taggui.utils.utils import ConfirmationDialog
 
 
 class CaptionMultipleImagesDialog(ConfirmationDialog):

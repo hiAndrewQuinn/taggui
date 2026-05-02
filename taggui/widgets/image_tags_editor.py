@@ -6,13 +6,13 @@ from PySide6.QtWidgets import (QAbstractItemView, QCompleter, QDockWidget,
                                QVBoxLayout, QWidget)
 from transformers import PreTrainedTokenizerBase
 
-from models.proxy_image_list_model import ProxyImageListModel
-from models.tag_counter_model import TagCounterModel
-from utils.image import Image
-from utils.settings import DEFAULT_SETTINGS, get_settings
-from utils.text_edit_item_delegate import TextEditItemDelegate
-from utils.utils import get_confirmation_dialog_reply
-from widgets.image_list import ImageList
+from taggui.models.proxy_image_list_model import ProxyImageListModel
+from taggui.models.tag_counter_model import TagCounterModel
+from taggui.utils.image import Image
+from taggui.utils.settings import DEFAULT_SETTINGS, get_settings
+from taggui.utils.text_edit_item_delegate import TextEditItemDelegate
+from taggui.utils.utils import get_confirmation_dialog_reply
+from taggui.widgets.image_list import ImageList
 
 MAX_TOKEN_COUNT = 75
 

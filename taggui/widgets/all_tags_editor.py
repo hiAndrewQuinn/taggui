@@ -7,13 +7,13 @@ from PySide6.QtWidgets import (QAbstractItemView, QDockWidget, QHBoxLayout,
                                QLabel, QLineEdit, QListView, QMessageBox,
                                QVBoxLayout, QWidget)
 
-from models.proxy_tag_counter_model import ProxyTagCounterModel
-from models.tag_counter_model import TagCounterModel
-from utils.big_widgets import TallPushButton
-from utils.enums import AllTagsSortBy, SortOrder
-from utils.settings_widgets import SettingsComboBox
-from utils.text_edit_item_delegate import TextEditItemDelegate
-from utils.utils import get_confirmation_dialog_reply, list_with_and, pluralize
+from taggui.models.proxy_tag_counter_model import ProxyTagCounterModel
+from taggui.models.tag_counter_model import TagCounterModel
+from taggui.utils.big_widgets import TallPushButton
+from taggui.utils.enums import AllTagsSortBy, SortOrder
+from taggui.utils.settings_widgets import SettingsComboBox
+from taggui.utils.text_edit_item_delegate import TextEditItemDelegate
+from taggui.utils.utils import get_confirmation_dialog_reply, list_with_and, pluralize
 
 
 class FilterLineEdit(QLineEdit):

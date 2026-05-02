@@ -6,11 +6,16 @@ from PySide6.QtWidgets import QMessageBox
 
 def get_resource_path(unbundled_resource_path: Path) -> Path:
     """
-    Get the path to a resource, ensuring that it is valid even when the program
-    is bundled with PyInstaller.
+    Get the path to a resource, ensuring that it is valid both when running
+    from the source tree, when installed as a package (e.g. via uv tool
+    install), and when bundled with PyInstaller.
     """
     # PyInstaller stores the path to its temporary directory in `sys._MEIPASS`.
-    base_path = getattr(sys, '_MEIPASS', Path(__file__).parent.parent.parent)
+    # When packaged, resources live alongside the `taggui` package under
+    # `taggui/resources/`. Path(__file__) here is `.../taggui/utils/utils.py`,
+    # so `parent.parent` is the `taggui` package directory.
+    base_path = getattr(sys, '_MEIPASS',
+                        Path(__file__).parent.parent / 'resources')
     resource_path = (Path(base_path) / unbundled_resource_path).resolve()
     return resource_path
 

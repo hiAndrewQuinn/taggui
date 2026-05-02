@@ -1,9 +1,9 @@
 import torch
 from transformers import AutoModelForCausalLM, BatchFeature
 
-import auto_captioning.captioning_thread as captioning_thread
-from auto_captioning.auto_captioning_model import AutoCaptioningModel
-from utils.image import Image
+import taggui.auto_captioning.captioning_thread as captioning_thread
+from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
+from taggui.utils.image import Image
 
 
 class Phi3Vision(AutoCaptioningModel):
