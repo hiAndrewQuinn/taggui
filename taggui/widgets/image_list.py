@@ -3,6 +3,7 @@ from enum import Enum
 from functools import reduce
 from operator import or_
 from pathlib import Path
+from typing import Literal
 
 from PySide6.QtCore import (QFile, QItemSelection, QItemSelectionModel,
                             QItemSelectionRange, QModelIndex, QSize, QUrl, Qt,
@@ -12,30 +13,20 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QDockWidget,
                                QFileDialog, QHBoxLayout, QLabel, QLineEdit,
                                QListView, QMenu, QMessageBox, QVBoxLayout,
                                QWidget)
-from pyparsing import (CaselessKeyword, CaselessLiteral, Group, OpAssoc,
-                       ParseException, QuotedString, Suppress, Word,
-                       infix_notation, nums, one_of, printables)
+from pyparsing import (CaselessLiteral, Group, ParseException, Suppress, Word,
+                       nums, one_of)
 
 from taggui.models.proxy_image_list_model import ProxyImageListModel
+from taggui.utils.filter_parser import (build_boolean_parser,
+                                        optionally_quoted_string,
+                                        replace_filter_wildcards)
 from taggui.utils.image import Image
 from taggui.utils.settings import get_settings
 from taggui.utils.settings_widgets import SettingsComboBox
 from taggui.utils.utils import get_confirmation_dialog_reply, pluralize
 
 
-def replace_filter_wildcards(filter_: str | list) -> str | list:
-    """
-    Replace escaped wildcard characters to make them compatible with the
-    `fnmatch` module.
-    """
-    if isinstance(filter_, str):
-        filter_ = filter_.replace(r'\*', '[*]').replace(r'\?', '[?]')
-        return filter_
-    replaced_filter = []
-    for element in filter_:
-        replaced_element = replace_filter_wildcards(element)
-        replaced_filter.append(replaced_element)
-    return replaced_filter
+ParseStatus = Literal['empty', 'ok', 'invalid']
 
 
 class FilterLineEdit(QLineEdit):
@@ -44,13 +35,11 @@ class FilterLineEdit(QLineEdit):
         self.setPlaceholderText('Filter Images')
         self.setStyleSheet('padding: 8px;')
         self.setClearButtonEnabled(True)
-        optionally_quoted_string = (QuotedString(quote_char='"', esc_char='\\')
-                                    | QuotedString(quote_char="'",
-                                                   esc_char='\\')
-                                    | Word(printables, exclude_chars='()'))
+        self.last_parse_status: ParseStatus = 'empty'
+        oqs = optionally_quoted_string()
         string_filter_keys = ['tag', 'caption', 'name', 'path']
         string_filter_expressions = [Group(CaselessLiteral(key) + Suppress(':')
-                                           + optionally_quoted_string)
+                                           + oqs)
                                      for key in string_filter_keys]
         comparison_operator = one_of('= == != < > <= >=')
         number_filter_keys = ['tags', 'chars', 'tokens']
@@ -61,26 +50,24 @@ class FilterLineEdit(QLineEdit):
         number_filter_expressions = reduce(or_, number_filter_expressions)
         filter_expressions = (string_filter_expressions
                               | number_filter_expressions
-                              | optionally_quoted_string)
-        self.filter_text_parser = infix_notation(
-            filter_expressions,
-            # Operator, number of operands, associativity.
-            [(CaselessKeyword('NOT'), 1, OpAssoc.RIGHT),
-             (CaselessKeyword('AND'), 2, OpAssoc.LEFT),
-             (CaselessKeyword('OR'), 2, OpAssoc.LEFT)])
+                              | oqs)
+        self.filter_text_parser = build_boolean_parser(filter_expressions)
 
     def parse_filter_text(self) -> list | str | None:
         filter_text = self.text()
         if not filter_text:
+            self.last_parse_status = 'empty'
             self.setStyleSheet('padding: 8px;')
             return None
         try:
             filter_ = self.filter_text_parser.parse_string(
                 filter_text, parse_all=True).as_list()[0]
             filter_ = replace_filter_wildcards(filter_)
+            self.last_parse_status = 'ok'
             self.setStyleSheet('padding: 8px;')
             return filter_
         except ParseException:
+            self.last_parse_status = 'invalid'
             # Change the background color when the filter text is invalid.
             if self.palette().color(self.backgroundRole()).lightness() < 128:
                 # Dark red for dark mode.
@@ -345,6 +332,11 @@ class ImageList(QDockWidget):
                              | Qt.DockWidgetArea.RightDockWidgetArea)
 
         self.filter_line_edit = FilterLineEdit()
+        self.filter_count_label = QLabel()
+        self.filter_count_label.setStyleSheet('color: gray;')
+        filter_layout = QHBoxLayout()
+        filter_layout.addWidget(self.filter_line_edit, stretch=1)
+        filter_layout.addWidget(self.filter_count_label)
         selection_mode_layout = QHBoxLayout()
         selection_mode_label = QLabel('Selection mode')
         self.selection_mode_combo_box = SettingsComboBox(
@@ -359,11 +351,12 @@ class ImageList(QDockWidget):
         # A container widget is required to use a layout with a `QDockWidget`.
         container = QWidget()
         layout = QVBoxLayout(container)
-        layout.addWidget(self.filter_line_edit)
+        layout.addLayout(filter_layout)
         layout.addLayout(selection_mode_layout)
         layout.addWidget(self.list_view)
         layout.addWidget(self.image_index_label)
         self.setWidget(container)
+        self.update_filter_count_label()
 
         self.selection_mode_combo_box.currentTextChanged.connect(
             self.set_selection_mode)
@@ -386,6 +379,19 @@ class ImageList(QDockWidget):
         if image_count != unfiltered_image_count:
             label_text += f' ({unfiltered_image_count} total)'
         self.image_index_label.setText(label_text)
+
+    @Slot()
+    def update_filter_count_label(self):
+        status = self.filter_line_edit.last_parse_status
+        total = self.proxy_image_list_model.sourceModel().rowCount()
+        if status == 'invalid':
+            self.filter_count_label.setText('—')
+            return
+        if status == 'empty':
+            self.filter_count_label.setText(f'{total:,}')
+            return
+        filtered = self.proxy_image_list_model.rowCount()
+        self.filter_count_label.setText(f'{filtered:,} / {total:,}')
 
     @Slot()
     def go_to_previous_image(self):

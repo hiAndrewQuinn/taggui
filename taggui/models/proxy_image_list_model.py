@@ -16,6 +16,10 @@ class ProxyImageListModel(QSortFilterProxyModel):
         self.tokenizer = tokenizer
         self.tag_separator = tag_separator
         self.filter: list | None = None
+        # Hide every row regardless of `filter`. Off by default so the main
+        # window's image list is unaffected; the Tag Audit window flips this
+        # on for Union mode with an empty tag selection (OR-of-nothing → ∅).
+        self.force_empty: bool = False
 
     def does_image_match_filter(self, image: Image,
                                 filter_: list | str) -> bool:
@@ -67,6 +71,8 @@ class ProxyImageListModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row: int,
                          source_parent: QModelIndex) -> bool:
+        if self.force_empty:
+            return False
         # Show all images if there is no filter.
         if self.filter is None:
             return True

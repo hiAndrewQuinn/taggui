@@ -13,11 +13,13 @@ from transformers import AutoTokenizer
 from taggui.dialogs.batch_reorder_tags_dialog import BatchReorderTagsDialog
 from taggui.dialogs.find_and_replace_dialog import FindAndReplaceDialog
 from taggui.dialogs.settings_dialog import SettingsDialog
+from taggui.models.bulk_tag_controller import BulkTagController
 from taggui.models.image_list_model import ImageListModel
 from taggui.models.image_tag_list_model import ImageTagListModel
 from taggui.models.proxy_image_list_model import ProxyImageListModel
 from taggui.models.tag_counter_model import TagCounterModel
 from taggui.utils.big_widgets import BigPushButton
+from taggui.utils.filter_parser import format_ast
 from taggui.utils.image import Image
 from taggui.utils.key_press_forwarder import KeyPressForwarder
 from taggui.utils.settings import DEFAULT_SETTINGS, get_settings, get_tag_separator
@@ -28,6 +30,7 @@ from taggui.widgets.auto_captioner import AutoCaptioner
 from taggui.widgets.image_list import ImageList
 from taggui.widgets.image_tags_editor import ImageTagsEditor
 from taggui.widgets.image_viewer import ImageViewer
+from taggui.widgets.tag_audit_window import TagAuditWindow
 
 ICON_PATH = Path('images/icon.ico')
 GITHUB_REPOSITORY_URL = 'https://github.com/hiAndrewQuinn/taggui'
@@ -42,20 +45,22 @@ class MainWindow(QMainWindow):
         # The path of the currently loaded directory. This is set later when a
         # directory is loaded.
         self.directory_path = None
-        image_list_image_width = self.settings.value(
+        self.image_list_image_width = self.settings.value(
             'image_list_image_width',
             defaultValue=DEFAULT_SETTINGS['image_list_image_width'], type=int)
-        tag_separator = get_tag_separator()
-        self.image_list_model = ImageListModel(image_list_image_width,
-                                               tag_separator)
+        self.tag_separator = get_tag_separator()
+        self.image_list_model = ImageListModel(self.image_list_image_width,
+                                               self.tag_separator)
+        self.bulk_tag_controller = BulkTagController(self.image_list_model)
+        self.tag_audit_window: TagAuditWindow | None = None
         logger.info('Loading CLIP tokenizer…')
         tokenizer_start = perf_counter()
-        tokenizer = AutoTokenizer.from_pretrained(
+        self.tokenizer = AutoTokenizer.from_pretrained(
             get_resource_path(TOKENIZER_DIRECTORY_PATH))
         logger.info('CLIP tokenizer loaded in {:.2f}s',
                     perf_counter() - tokenizer_start)
         self.proxy_image_list_model = ProxyImageListModel(
-            self.image_list_model, tokenizer, tag_separator)
+            self.image_list_model, self.tokenizer, self.tag_separator)
         self.image_list_model.proxy_image_list_model = (
             self.proxy_image_list_model)
         self.tag_counter_model = TagCounterModel()
@@ -71,13 +76,14 @@ class MainWindow(QMainWindow):
         self.image_viewer = ImageViewer(self.proxy_image_list_model)
         self.create_central_widget()
         self.image_list = ImageList(self.proxy_image_list_model,
-                                    tag_separator, image_list_image_width)
+                                    self.tag_separator,
+                                    self.image_list_image_width)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea,
                            self.image_list)
         self.image_tags_editor = ImageTagsEditor(
             self.proxy_image_list_model, self.tag_counter_model,
-            self.image_tag_list_model, self.image_list, tokenizer,
-            tag_separator)
+            self.image_tag_list_model, self.image_list, self.tokenizer,
+            self.tag_separator)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea,
                            self.image_tags_editor)
         self.all_tags_editor = AllTagsEditor(self.tag_counter_model)
@@ -96,11 +102,11 @@ class MainWindow(QMainWindow):
         # Temporarily set a size for the window so that the dock widgets can be
         # expanded to their default widths. If the window geometry was
         # previously saved, it will be restored later.
-        self.resize(image_list_image_width * 8,
-                    int(image_list_image_width * 4.5))
+        self.resize(self.image_list_image_width * 8,
+                    int(self.image_list_image_width * 4.5))
         self.resizeDocks([self.image_list, self.image_tags_editor,
                           self.all_tags_editor],
-                         [int(image_list_image_width * 2.5)] * 3,
+                         [int(self.image_list_image_width * 2.5)] * 3,
                          Qt.Orientation.Horizontal)
         # Disable some widgets until a directory is loaded.
         self.image_tags_editor.tag_input_box.setDisabled(True)
@@ -297,6 +303,21 @@ class MainWindow(QMainWindow):
         message_box.exec()
 
     @Slot()
+    def show_tag_audit_window(self):
+        if self.tag_audit_window is None:
+            self.tag_audit_window = TagAuditWindow(
+                image_list_model=self.image_list_model,
+                tag_counter_model=self.tag_counter_model,
+                bulk_controller=self.bulk_tag_controller,
+                tokenizer=self.tokenizer,
+                tag_separator=self.tag_separator,
+                image_width=self.image_list_image_width,
+                parent=self)
+        self.tag_audit_window.show()
+        self.tag_audit_window.raise_()
+        self.tag_audit_window.activateWindow()
+
+    @Slot()
     def remove_empty_tags(self):
         removed_tag_count = self.image_list_model.remove_empty_tags()
         message_box = QMessageBox()
@@ -380,6 +401,11 @@ class MainWindow(QMainWindow):
         view_menu.addAction(self.toggle_image_tags_editor_action)
         view_menu.addAction(self.toggle_all_tags_editor_action)
         view_menu.addAction(self.toggle_auto_captioner_action)
+        view_menu.addSeparator()
+        tag_audit_action = QAction('Tag Audit…', parent=self)
+        tag_audit_action.setShortcut(QKeySequence('Ctrl+Shift+A'))
+        tag_audit_action.triggered.connect(self.show_tag_audit_window)
+        view_menu.addAction(tag_audit_action)
 
         help_menu = menu_bar.addMenu('Help')
         open_github_repository_action = QAction('GitHub', parent=self)
@@ -410,6 +436,7 @@ class MainWindow(QMainWindow):
         self.proxy_image_list_model.filter = filter_
         # Apply the new filter.
         self.proxy_image_list_model.invalidateFilter()
+        self._update_image_filter_feedback()
         if filter_ is None:
             all_tags_list_selection_model = (self.all_tags_editor
                                              .all_tags_list.selectionModel())
@@ -425,6 +452,17 @@ class MainWindow(QMainWindow):
             # Select the first image.
             self.image_list.list_view.setCurrentIndex(
                 self.proxy_image_list_model.index(0, 0))
+
+    def _update_image_filter_feedback(self):
+        self.image_list.update_filter_count_label()
+        line_edit = self.image_list.filter_line_edit
+        status = line_edit.last_parse_status
+        if status == 'empty':
+            line_edit.setToolTip('')
+        elif status == 'invalid':
+            line_edit.setToolTip('Invalid filter expression')
+        else:
+            line_edit.setToolTip(format_ast(self.proxy_image_list_model.filter))
 
     @Slot()
     def save_image_index(self, proxy_image_index: QModelIndex):
@@ -451,6 +489,14 @@ class MainWindow(QMainWindow):
         self.image_list_model.dataChanged.connect(
             lambda: self.tag_counter_model.count_tags(
                 self.image_list_model.images))
+        self.image_list_model.modelReset.connect(
+            self.image_list.update_filter_count_label)
+        self.image_list_model.dataChanged.connect(
+            self.image_list.update_filter_count_label)
+        self.proxy_image_list_model.rowsInserted.connect(
+            self.image_list.update_filter_count_label)
+        self.proxy_image_list_model.rowsRemoved.connect(
+            self.image_list.update_filter_count_label)
         self.image_list_model.dataChanged.connect(
             self.image_tags_editor.reload_image_tags_if_changed)
         self.image_list_model.update_undo_and_redo_actions_requested.connect(
