@@ -1,18 +1,22 @@
-import os
+# Earliest-possible signal that the process is alive. The heavy imports
+# below take ~3 s on a cold start (PySide6, transformers, torch via the
+# auto-captioning model tree); without this line the user sees nothing
+# until configure_logging() runs.
 import sys
+print('taggui: loading…', file=sys.stderr, flush=True)
+
+import os
 import traceback
 import warnings
 from importlib.metadata import PackageNotFoundError, version
 from time import perf_counter
 
-import transformers
 from loguru import logger
 from PySide6.QtGui import QImageReader
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from taggui.utils.logging_setup import configure_logging
 from taggui.utils.settings import get_settings
-from taggui.widgets.main_window import MainWindow
 
 
 def suppress_warnings():
@@ -26,6 +30,7 @@ def suppress_warnings():
         logger.info('Running in development environment.')
         return
     warnings.simplefilter('ignore')
+    import transformers
     transformers.logging.set_verbosity_error()
     try:
         import auto_gptq
@@ -55,6 +60,11 @@ def run_gui():
     # Disable the allocation limit to allow loading large images.
     QImageReader.setAllocationLimit(0)
     logger.debug('QApplication created in {:.2f}s', perf_counter() - t0)
+    logger.info('Importing GUI components…')
+    import_start = perf_counter()
+    from taggui.widgets.main_window import MainWindow
+    logger.info('GUI components imported in {:.2f}s',
+                perf_counter() - import_start)
     logger.debug('Constructing main window…')
     main_window = MainWindow(app)
     main_window.show()

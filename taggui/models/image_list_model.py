@@ -104,6 +104,7 @@ class ImageListModel(QAbstractListModel):
     def load_directory(self, directory_path: Path):
         logger.info('Loading directory: {}', directory_path)
         load_start = perf_counter()
+        consumed_txt_paths: set[str] = set()
         self.beginResetModel()
         try:
             self.images.clear()
@@ -154,7 +155,9 @@ class ImageListModel(QAbstractListModel):
                     dimensions = None
                 tags = []
                 text_file_path = image_path.with_suffix('.txt')
-                if str(text_file_path) in text_file_path_strings:
+                text_file_path_string = str(text_file_path)
+                if text_file_path_string in text_file_path_strings:
+                    consumed_txt_paths.add(text_file_path_string)
                     # `errors='replace'` inserts a replacement marker such as
                     # '?' when there is malformed data.
                     caption = text_file_path.read_text(encoding='utf-8',
@@ -171,6 +174,13 @@ class ImageListModel(QAbstractListModel):
         self.update_undo_and_redo_actions_requested.emit()
         logger.info('Loaded {} images in {:.2f}s',
                     len(self.images), perf_counter() - load_start)
+        total_txt_count = len(text_file_path_strings)
+        paired_count = len(consumed_txt_paths)
+        orphan_txt_count = total_txt_count - paired_count
+        logger.info('Paired {}/{} images with .txt tag files',
+                    paired_count, len(image_paths))
+        logger.info('Matched {}/{} .txt files to an image ({} orphan)',
+                    paired_count, total_txt_count, orphan_txt_count)
 
     def add_to_undo_stack(self, action_name: str,
                           should_ask_for_confirmation: bool):
