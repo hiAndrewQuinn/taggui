@@ -18,6 +18,7 @@ from taggui.models.image_tag_list_model import ImageTagListModel
 from taggui.models.proxy_image_list_model import ProxyImageListModel
 from taggui.models.tag_counter_model import TagCounterModel
 from taggui.utils.big_widgets import BigPushButton
+from taggui.utils.filter_parser import format_ast
 from taggui.utils.image import Image
 from taggui.utils.key_press_forwarder import KeyPressForwarder
 from taggui.utils.settings import DEFAULT_SETTINGS, get_settings, get_tag_separator
@@ -410,6 +411,7 @@ class MainWindow(QMainWindow):
         self.proxy_image_list_model.filter = filter_
         # Apply the new filter.
         self.proxy_image_list_model.invalidateFilter()
+        self._update_image_filter_feedback()
         if filter_ is None:
             all_tags_list_selection_model = (self.all_tags_editor
                                              .all_tags_list.selectionModel())
@@ -425,6 +427,17 @@ class MainWindow(QMainWindow):
             # Select the first image.
             self.image_list.list_view.setCurrentIndex(
                 self.proxy_image_list_model.index(0, 0))
+
+    def _update_image_filter_feedback(self):
+        self.image_list.update_filter_count_label()
+        line_edit = self.image_list.filter_line_edit
+        status = line_edit.last_parse_status
+        if status == 'empty':
+            line_edit.setToolTip('')
+        elif status == 'invalid':
+            line_edit.setToolTip('Invalid filter expression')
+        else:
+            line_edit.setToolTip(format_ast(self.proxy_image_list_model.filter))
 
     @Slot()
     def save_image_index(self, proxy_image_index: QModelIndex):
@@ -451,6 +464,14 @@ class MainWindow(QMainWindow):
         self.image_list_model.dataChanged.connect(
             lambda: self.tag_counter_model.count_tags(
                 self.image_list_model.images))
+        self.image_list_model.modelReset.connect(
+            self.image_list.update_filter_count_label)
+        self.image_list_model.dataChanged.connect(
+            self.image_list.update_filter_count_label)
+        self.proxy_image_list_model.rowsInserted.connect(
+            self.image_list.update_filter_count_label)
+        self.proxy_image_list_model.rowsRemoved.connect(
+            self.image_list.update_filter_count_label)
         self.image_list_model.dataChanged.connect(
             self.image_tags_editor.reload_image_tags_if_changed)
         self.image_list_model.update_undo_and_redo_actions_requested.connect(

@@ -14,6 +14,7 @@ class TagCounterModel(QAbstractListModel):
         super().__init__()
         self.tag_counter = Counter()
         self.most_common_tags = []
+        self.tag_to_image_indices: dict[str, set[int]] = {}
         self.all_tags_list = None
 
     def rowCount(self, parent=None) -> int:
@@ -71,8 +72,12 @@ class TagCounterModel(QAbstractListModel):
         self.beginResetModel()
         try:
             self.tag_counter.clear()
-            for image in images:
+            self.tag_to_image_indices = {}
+            for image_index, image in enumerate(images):
                 self.tag_counter.update(image.tags)
+                for tag in image.tags:
+                    self.tag_to_image_indices.setdefault(tag, set()).add(
+                        image_index)
             self.most_common_tags = self.tag_counter.most_common()
         finally:
             self.endResetModel()
