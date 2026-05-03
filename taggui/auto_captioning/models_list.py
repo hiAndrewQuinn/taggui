@@ -1,14 +1,4 @@
 from taggui.auto_captioning.auto_captioning_model import AutoCaptioningModel
-from taggui.auto_captioning.models.florence_2 import Florence2, Florence2Promptgen
-from taggui.auto_captioning.models.joycaption import Joycaption
-from taggui.auto_captioning.models.kosmos_2 import Kosmos2
-from taggui.auto_captioning.models.llava_1_point_5 import Llava1Point5
-from taggui.auto_captioning.models.llava_llama_3 import LlavaLlama3
-from taggui.auto_captioning.models.llava_next import (LlavaNext34b, LlavaNextMistral,
-                                               LlavaNextVicuna)
-from taggui.auto_captioning.models.moondream import Moondream1, Moondream2
-from taggui.auto_captioning.models.phi_3_vision import Phi3Vision
-from taggui.auto_captioning.models.wd_tagger import WdTagger
 
 MODELS = [
     'fancyfeast/llama-joycaption-beta-one-hf-llava',
@@ -53,31 +43,47 @@ MODELS = [
 
 
 def get_model_class(model_id: str) -> type[AutoCaptioningModel]:
+    # Imports are deferred into each branch so that startup doesn't pay for
+    # torch / onnxruntime / transformers unless the user actually picks a
+    # model. WdTagger in particular pulls in onnxruntime + torch.
     lowercase_model_id = model_id.lower()
     if 'florence' in lowercase_model_id:
+        from taggui.auto_captioning.models.florence_2 import (
+            Florence2, Florence2Promptgen)
         if 'promptgen' in lowercase_model_id:
             return Florence2Promptgen
         return Florence2
     if 'joycaption' in lowercase_model_id:
+        from taggui.auto_captioning.models.joycaption import Joycaption
         return Joycaption
     if 'kosmos' in lowercase_model_id:
+        from taggui.auto_captioning.models.kosmos_2 import Kosmos2
         return Kosmos2
     if 'llava-v1.6-34b' in lowercase_model_id:
+        from taggui.auto_captioning.models.llava_next import LlavaNext34b
         return LlavaNext34b
     if 'llava-v1.6-mistral' in lowercase_model_id:
+        from taggui.auto_captioning.models.llava_next import LlavaNextMistral
         return LlavaNextMistral
     if 'llava-v1.6-vicuna' in lowercase_model_id:
+        from taggui.auto_captioning.models.llava_next import LlavaNextVicuna
         return LlavaNextVicuna
     if 'llava-llama-3' in lowercase_model_id:
+        from taggui.auto_captioning.models.llava_llama_3 import LlavaLlama3
         return LlavaLlama3
     if 'llava' in lowercase_model_id:
+        from taggui.auto_captioning.models.llava_1_point_5 import Llava1Point5
         return Llava1Point5
     if 'moondream1' in lowercase_model_id:
+        from taggui.auto_captioning.models.moondream import Moondream1
         return Moondream1
     if 'moondream2' in lowercase_model_id:
+        from taggui.auto_captioning.models.moondream import Moondream2
         return Moondream2
     if 'phi-3' in lowercase_model_id:
+        from taggui.auto_captioning.models.phi_3_vision import Phi3Vision
         return Phi3Vision
     if 'wd' in lowercase_model_id and 'tagger' in lowercase_model_id:
+        from taggui.auto_captioning.models.wd_tagger import WdTagger
         return WdTagger
     return AutoCaptioningModel
